@@ -2,7 +2,7 @@
 
 # Created By hjunlee@linuxdata.co.kr
 # 2019.05.27 build on Linuxdatasystem | OTS 
-# 2022.04.01 support RHEL8
+# 2022.04.01 RHEL8 support
 
 ##########################################################
 ##						      	##
