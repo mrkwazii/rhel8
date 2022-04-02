@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Created By hjunlee@linuxdata.co.kr
+# 2022.04.01 build on Linuxdatasystem | OTS 
+
+######################################################
+##                                                  ##
+##                    For RHEL8                     ##
+##                                                  ##
+##              LinuxDataSystem Inc.                ##
+##      Initial and Security Patch Script - v0.1    ##
+##                                                  ##
+######################################################
+
+function color()
+{
+        case $1 in
+                NORMAL) printf "\033[m";;
+                   RED) printf "\033[31m";;
+                 GREEN) printf "\033[32m";;
+                YELLOW) printf "\033[33m";;
+                  BLUE) printf "\033[34m";;
+                PURPLE) printf "\033[35m";;
+                   SKY) printf "\033[36m";;
+                 WHITE) printf "\033[37m";;
+        esac
+}
+
+CUR_DATE=`date +'%Y%m%d'`
+BACK_DIR=/root/LDS/backup
+
+#중복 실행여부 확인
+#두번 실행하게 되면 백업파일이 덮어 씌어지기 때문에 문제가 된다.
+if [ -d "$BACK_DIR/$CUR_DATE" ];
+then
+     color "RED"
+     echo "backup directory already exist"
+     color "NORMAL"
+    exit 1
+fi
+
+mkdir -p /root/LDS/backup/$CUR_DATE
+
+function initial_sar()
+{
+  echo "#################### sysstat timer config  ####################"
+  cp /usr/lib/systemd/system/sysstat-collect.timer /etc/systemd/system/
+  sed -i 's/OnCalendar\=\*\:00\/10/OnCalendar\=\*\:00\/01/' /etc/systemd/system/sysstat-collect.timer
+  systemctl daemon-reload
+  systemctl enable --now sysstat
+}
