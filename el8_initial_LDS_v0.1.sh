@@ -8,7 +8,7 @@
 ##                    For RHEL8                     ##
 ##                                                  ##
 ##              LinuxDataSystem Inc.                ##
-##      Initial and Security Patch Script - v0.1    ##
+##             Initial Script - v0.1    	    ##
 ##                                                  ##
 ######################################################
 
@@ -27,7 +27,7 @@ function color()
 }
 
 CUR_DATE=`date +'%Y%m%d'`
-BACK_DIR=/root/LDS/backup
+BACK_DIR=/root/LDS/backup_initial
 
 #중복 실행여부 확인
 #두번 실행하게 되면 백업파일이 덮어 씌어지기 때문에 문제가 된다.
@@ -39,7 +39,7 @@ then
     exit 1
 fi
 
-mkdir -p /root/LDS/backup/$CUR_DATE
+mkdir -p /root/LDS/backup_initial/$CUR_DATE
 
 function initial_sar()
 {
@@ -49,3 +49,53 @@ function initial_sar()
   systemctl daemon-reload
   systemctl enable --now sysstat
 }
+
+function initial_parameter()
+{
+echo "##### sysctl Configure  #####"
+cp -a /etc/sysctl.d/99-sysctl.conf $BACK_DIR/$CUR_DATE
+cat >> /etc/sysctl.conf << EOF
+# Parameter Tuning
+
+kernel.sysrq = 1
+kernel.panic_on_io_nmi=1
+kernel.panic_on_unrecovered_nmi=1
+kernel.panic_on_stackoverflow=1
+kernel.softlockup_panic=1
+kernel.unknown_nmi_panic=1
+
+vm.swappiness = 1
+EOF
+sysctl -p
+}
+
+function initial_ulimit()
+{
+echo "##### Configure ulimit #####"
+cp -a /etc/security/limits.conf $BACK_DIR/$CUR_DATE
+cat >> /etc/security/limits.conf << EOF
+*        soft    nofile       8192
+*        hard    nofile       65535
+*        soft    nproc        8192
+*        hard    nproc        16384
+EOF
+}
+
+function initial_histtime()
+{
+echo "##### Set bash history timestamp #####"
+echo 'export HISTTIMEFORMAT="%F %T "' >> ~/.bashrc
+}
+
+
+function main()
+{
+	initial_sar 			## Change the sar log collection cycle to 1 minute
+	initial_parameter		## Set initial parameter
+	initial_ulimit			## Set initial parameter
+	initial_histtime		## Set bash history timestamp
+}
+
+
+main
+color "NORMAL"
