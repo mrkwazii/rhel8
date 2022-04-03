@@ -31,6 +31,7 @@ function color()
 CUR_DATE=`date +'%Y%m%d'`
 BACK_DIR=/root/LDS/backup
 RHEL_VERSION=`cat /etc/redhat-release | cut -d. -f 1 | awk '{print $NF}'`
+RHEL_MINOR_VERSION=`cat /etc/redhat-release | cut -d. -f 2 | awk '{print $1}'`
 
 #중복 실행여부 확인
 #두번 실행하게 되면 백업파일이 덮어 씌어지기 때문에 문제가 된다.
@@ -49,7 +50,7 @@ function u01()
 {
 
 	echo "##### u01 root 계정 원격 접속 제한 #####"
-cp -ap /etc/ssh/sshd_config $BACK_DIR/$CUR_DATE
+cp -an /etc/ssh/sshd_config $BACK_DIR/$CUR_DATE
 
 if [ "$RHEL_VERSION" == 8 ];
 then
@@ -83,7 +84,7 @@ function u02()
 #echo "ucredit=-1 (포함될 대문자의 최소 개수)"
 #echo "dcredit=-1 (포함될 숫자의 최소 개수)"
 #echo "ocredit=-1 (포함될 특수 문자의 최소 개수)"
-cp -ap /etc/security/pwquality.conf $BACK_DIR/$CUR_DATE
+cp -an /etc/security/pwquality.conf $BACK_DIR/$CUR_DATE
 
 if [ "$RHEL_VERSION" == 8 ];
   then
@@ -118,14 +119,33 @@ function u03()
 {
 
 	echo "##### u03 계정 잠금 임계값 설정 #####"
-cp -ap /etc/pam.d/system-auth $BACK_DIR/$CUR_DATE
-cp -ap /etc/pam.d/password-auth $BACK_DIR/$CUR_DATE
+cp -an /etc/authselect/system-auth $BACK_DIR/$CUR_DATE
+cp -an /etc/authselect/password-auth $BACK_DIR/$CUR_DATE
 
 
+if [ "$RHEL_VERSION" == 8 ];
+  then
+  authselect apply-changes -b --backup=sssd.backup
+  authselect create-profile password-policy -b sssd
+  authselect select custom/password-policy
+  authselect enable-feature with-mkhomedir
+  authselect enable-feature with-faillock
+  authselect apply-changes
+	if [ "$RHEL_MINOR_VERSION" -le 2 ]
+		then
+			sed -i "s/deny=4/deny=10/g" /etc/pam.d/system-auth;
+			sed -i "s/deny=4/deny=10/g" /etc/pam.d/password-auth;
+			sed -i "s/unlock_time=1200/unlock_time=3600/g" /etc/pam.d/system-auth;
+			sed -i "s/unlock_time=1200/unlock_time=3600/g" /etc/pam.d/password-auth;
+		else
+			echo "I'am rhel 8.${RHEL_MINOR_VERSION} over 3"
+	fi	
+  else
 sed -i '5i\auth        required      pam_tally2.so deny=10 unlock_time=3600' /etc/pam.d/system-auth
 sed -i '11i\account     required      pam_tally2.so' /etc/pam.d/system-auth
 sed -i '5i\auth        required      pam_tally2.so deny=10 unlock_time=3600' /etc/pam.d/password-auth
 sed -i '10i\account     required      pam_tally2.so' /etc/pam.d/password-auth
+fi
 
 #deny=10  : 패스워드 잠금 횟수 10회
 #unlock_time=3600 (1시간) : 계정이 잠김 후 해제 될 때까지의 시간(단위 : 초) 
@@ -1297,6 +1317,6 @@ function main()
    u76 # 필요없는 서비스 disable
 }
 
-u02
+u03
 color "NORMAL"
 
