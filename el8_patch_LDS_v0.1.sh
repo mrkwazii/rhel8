@@ -27,8 +27,10 @@ function color()
         esac
 }
 
+# SET Global variable 
 CUR_DATE=`date +'%Y%m%d'`
 BACK_DIR=/root/LDS/backup
+RHEL_VERSION=`cat /etc/redhat-release | cut -d. -f 1 | awk '{print $NF}'`
 
 #중복 실행여부 확인
 #두번 실행하게 되면 백업파일이 덮어 씌어지기 때문에 문제가 된다.
@@ -48,7 +50,13 @@ function u01()
 
 	echo "##### u01 root 계정 원격 접속 제한 #####"
 cp -ap /etc/ssh/sshd_config $BACK_DIR/$CUR_DATE
+
+if [ "$RHEL_VERSION" == 8 ];
+then
+	sed -i "s/PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config;
+else
 	sed -i "s/#PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config;
+fi
 	systemctl restart sshd
 		
 chk=$(cat /etc/ssh/sshd_config | grep ^PermitRootLogin | awk '{print $2}')
@@ -69,17 +77,27 @@ echo "##### u01 root 계정 원격 접속 제한 #####" &>> /$BACK_DIR/$CUR_DATE
 function u02()
 {
 	echo "##### u02 패스워드 복잡성 설정 #####"
-cp -ap /etc/security/pwquality.conf $BACK_DIR/$CUR_DATE
 # 숫자와 특수문자가 혼합된 패스워드 복잡도 설정
 #echo "minlen=8 (비밀번호의 최소길이 8)"
 #echo "lcredit=-1 (포함될 소문자의 최소 개수)"
 #echo "ucredit=-1 (포함될 대문자의 최소 개수)"
 #echo "dcredit=-1 (포함될 숫자의 최소 개수)"
 #echo "ocredit=-1 (포함될 특수 문자의 최소 개수)"
+cp -ap /etc/security/pwquality.conf $BACK_DIR/$CUR_DATE
+
+if [ "$RHEL_VERSION" == 8 ];
+  then
+sed -i "s/# dcredit = 0/dcredit = -1/g" /etc/security/pwquality.conf;
+sed -i "s/# ocredit = 0/ocredit = -1/g" /etc/security/pwquality.conf;
+sed -i "s/# lcredit = 0/lcredit = -1/g" /etc/security/pwquality.conf;
+sed -i "s/# ucredit = 0/ucredit = -1/g" /etc/security/pwquality.conf;
+  else
 sed -i "s/# dcredit = 1/dcredit = -1/g" /etc/security/pwquality.conf;
 sed -i "s/# ocredit = 1/ocredit = -1/g" /etc/security/pwquality.conf;
 sed -i "s/# lcredit = 1/lcredit = -1/g" /etc/security/pwquality.conf;
 sed -i "s/# ucredit = 1/ucredit = -1/g" /etc/security/pwquality.conf;
+fi
+
 
 chk=$(cat /etc/security/pwquality.conf | egrep "dcredit|ocredit" | grep "\-1" | wc -l)
 	if [ "$chk" -eq 2 ]
@@ -1279,6 +1297,6 @@ function main()
    u76 # 필요없는 서비스 disable
 }
 
-main
+u02
 color "NORMAL"
 
