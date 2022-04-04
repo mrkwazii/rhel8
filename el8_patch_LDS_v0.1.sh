@@ -280,10 +280,10 @@ function u10()
       echo "##### u10 불필요한 계정 제거 #####"
 	# lp 계정 삭제 (uucp ,nuucp 계정은 default로 생성 안됨)
 
-cp -ap /etc/passwd $BACK_DIR/$CUR_DATE
-cp -ap /etc/group $BACK_DIR/$CUR_DATE
-cp -ap /etc/shadow $BACK_DIR/$CUR_DATE
-cp -ap /etc/gshadow $BACK_DIR/$CUR_DATE
+cp -an /etc/passwd $BACK_DIR/$CUR_DATE
+cp -an /etc/group $BACK_DIR/$CUR_DATE
+cp -an /etc/shadow $BACK_DIR/$CUR_DATE
+cp -an /etc/gshadow $BACK_DIR/$CUR_DATE
 
 	for i in $(cat /etc/passwd | grep "^lp:" | cut -d: -f1 )
 	do
