@@ -238,7 +238,7 @@ function u07()
         echo "" >> $BACK_DIR/login.tmp
         echo "# Add passwd rule" >> $BACK_DIR/login.tmp
         echo "PASS_MIN_LEN    8" >> $BACK_DIR/login.tmp
-        echo "PASS_MAX_DAYS  180" >> $BACK_DIR/login.tmp
+        echo "PASS_MAX_DAYS  90" >> $BACK_DIR/login.tmp
         echo "PASS_MIN_DAYS   7" >> $BACK_DIR/login.tmp
 	echo "PASS_WARN_AGE   7" >> $BACK_DIR/login.tmp
   cat $BACK_DIR/login.tmp > /etc/login.defs
@@ -556,7 +556,7 @@ function u24()
 	# 백업은 setid_file_info.txt로 확인 가능
 	# 수동으로 확인은 find / -user root -type f \( -perm -04000 -o -perm -02000 \) -xdev -exec ls -al {} \;
 
-FILES="/sbin/dump /usr/bin/lpq-lpd /usr/bin/newgrp /sbin/restore /usr/bin/lpr /usr/sbin/lpc /sbin/unix_chkpwd /usr/bin/lpr-lpd /usr/sbin/lpc-lpd /usr/bin/at /usr/bin/lprm /bin/traceroute /usr/bin/lpq /usr/bin/lprm-lpd"
+FILES="/sbin/dump /usr/bin/lpq-lpd /usr/bin/newgrp /sbin/restore /usr/bin/lpr /usr/bin/pkexec /usr/sbin/lpc /sbin/unix_chkpwd /usr/bin/lpr-lpd /usr/sbin/lpc-lpd /usr/bin/at /usr/bin/lprm /bin/traceroute /usr/bin/lpq /usr/bin/lprm-lpd"
 for check_file in $FILES
 do
         if [ -f $check_file ]
@@ -766,7 +766,7 @@ function u32()
 {
       echo "##### u32 UMASK 설정 관리 #####"
 # 백업
-cp -ap /etc/bashrc $BACK_DIR/$CUR_DATE
+cp -an /etc/bashrc $BACK_DIR/$CUR_DATE
 	
 # u15번에서 백업 하므로 확인 후 없다면 백업 진행
 if [ -s "$BACK_DIR/$CUR_DATE/profile" ];
@@ -1233,17 +1233,17 @@ sed -i "s/rotate 4/rotate 24/g" /etc/logrotate.conf
 
 function u76()
 {
-systemctl disable spice-vdagentd.service
-systemctl disable abrt-vmcore.service
-systemctl disable abrt-xorg.service
-systemctl disable mdmonitor.service
-systemctl disable spice-vdagentd.service
-systemctl disable cups.socket
-systemctl disable cups.service
-systemctl disable bluetooth.service
-systemctl disable ksm.service
-systemctl disable ksmtuned.service
-systemctl disable libvirtd.service
+systemctl disable --now spice-vdagentd.service
+systemctl disable --now abrt-vmcore.service 
+systemctl disable --now abrt-xorg.service 
+systemctl disable --now mdmonitor.service
+systemctl disable --now spice-vdagentd.service
+systemctl disable --now cups.socket
+systemctl disable --now cups.service
+systemctl disable --now bluetooth.service
+systemctl disable --now ksm.service
+systemctl disable --now ksmtuned.service
+systemctl disable --now libvirtd.service
 }
 
 function main()
@@ -1326,6 +1326,6 @@ function main()
    u76 # 필요없는 서비스 disable
 }
 
-u10
+u67
 color "NORMAL"
 

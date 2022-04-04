@@ -87,6 +87,26 @@ echo "##### Set bash history timestamp #####"
 echo 'export HISTTIMEFORMAT="%F %T "' >> ~/.bashrc
 }
 
+function initial_logrotate()
+{
+sed -i "s/rotate 4/rotate 24/g" /etc/logrotate.conf
+}
+
+function initial_disablesvc()
+{
+systemctl disable --now spice-vdagentd.service
+systemctl disable --now abrt-vmcore.service
+systemctl disable --now abrt-xorg.service
+systemctl disable --now mdmonitor.service
+systemctl disable --now spice-vdagentd.service
+systemctl disable --now cups.socket
+systemctl disable --now cups.service
+systemctl disable --now bluetooth.service
+systemctl disable --now ksm.service
+systemctl disable --now ksmtuned.service
+systemctl disable --now libvirtd.service
+}
+
 
 function main()
 {
@@ -94,6 +114,8 @@ function main()
 	initial_parameter		## Set initial parameter
 	initial_ulimit			## Set initial parameter
 	initial_histtime		## Set bash history timestamp
+	initial_logrotate		## Logs older than 6 months are deleted
+	initial_disablesvc		## Disable unnecessary services
 }
 
 
