@@ -1226,26 +1226,6 @@ chmod o-w /etc/cron.monthly/
 chmod o-w /etc/cron.weekly/
 }
 
-function u75()
-{
-sed -i "s/rotate 4/rotate 24/g" /etc/logrotate.conf
-}
-
-function u76()
-{
-systemctl disable --now spice-vdagentd.service
-systemctl disable --now abrt-vmcore.service 
-systemctl disable --now abrt-xorg.service 
-systemctl disable --now mdmonitor.service
-systemctl disable --now spice-vdagentd.service
-systemctl disable --now cups.socket
-systemctl disable --now cups.service
-systemctl disable --now bluetooth.service
-systemctl disable --now ksm.service
-systemctl disable --now ksmtuned.service
-systemctl disable --now libvirtd.service
-}
-
 function main()
 {
 	u01 	# root계정 원격 접속 제한
@@ -1322,10 +1302,8 @@ function main()
 #	u72	# 로그의 정기적 검토 및 보고
 #	u73	# 정책에 따른 시스템 로깅 설정
 	u74 # crontab 파일 권한 설정
-   u75  # 로그저장주기 6개월로 변경
-   u76 # 필요없는 서비스 disable
 }
 
-u67
+main
 color "NORMAL"
 
