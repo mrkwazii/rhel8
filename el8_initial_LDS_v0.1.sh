@@ -53,7 +53,7 @@ function initial_sar()
 function initial_parameter()
 {
 echo "##### sysctl Configure  #####"
-cp -a /etc/sysctl.d/99-sysctl.conf $BACK_DIR/$CUR_DATE
+cp -an /etc/sysctl.conf $BACK_DIR/$CUR_DATE
 cat >> /etc/sysctl.conf << EOF
 # Parameter Tuning
 
