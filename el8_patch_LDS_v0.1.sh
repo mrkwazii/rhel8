@@ -208,7 +208,7 @@ sed -i '/#auth\t\trequired\tpam_wheel.so/  s/.// ' /etc/pam.d/su
 #	echo "$passwd" | passwd $user_name --stdin
 
 
-usermod -aG wheel hjun
+usermod -aG wheel skccadm
 
 chk=$(cat /etc/pam.d/su | grep "pam_wheel.so use_uid" | grep -v ^# | wc -l)
         if [ "$chk" -eq 1 ]
