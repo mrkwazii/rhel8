@@ -133,12 +133,13 @@ if [ "$RHEL_VERSION" == 8 ];
   authselect apply-changes
 	if [ "$RHEL_MINOR_VERSION" -le 2 ]
 		then
-			sed -i "s/deny=4/deny=10/g" /etc/pam.d/system-auth;
-			sed -i "s/deny=4/deny=10/g" /etc/pam.d/password-auth;
-			sed -i "s/unlock_time=1200/unlock_time=3600/g" /etc/pam.d/system-auth;
-			sed -i "s/unlock_time=1200/unlock_time=3600/g" /etc/pam.d/password-auth;
+			sed -i -e 's/deny=4/deny=10/g' -e 's/unlock_time=1200/unlock_time=3600/g' /etc/authselect/custom/password-policy/system-auth
+			sed -i -e 's/deny=4/deny=10/g' -e 's/unlock_time=1200/unlock_time=3600/g' /etc/authselect/custom/password-policy/password-auth
+			authselect apply-changes
 		else
-			echo "I'am rhel 8.${RHEL_MINOR_VERSION} over 3"
+			sed -i -e 's/pam_faillock.so preauth silent/pam_faillock.so preauth silent deny=10 unlock_time=3600/g' -e 's/pam_faillock.so authfail/pam_faillock.so authfail deny=10 unlock_time=3600/g' /etc/authselect/custom/password-policy/system-auth
+			sed -i -e 's/pam_faillock.so preauth silent/pam_faillock.so preauth silent deny=10 unlock_time=3600/g' -e 's/pam_faillock.so authfail/pam_faillock.so authfail deny=10 unlock_time=3600/g' /etc/authselect/custom/password-policy/password-auth
+			authselect apply-changes
 	fi	
   else
 sed -i '5i\auth        required      pam_tally2.so deny=10 unlock_time=3600' /etc/pam.d/system-auth
