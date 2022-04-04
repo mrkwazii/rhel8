@@ -119,12 +119,12 @@ function u03()
 {
 
 	echo "##### u03 계정 잠금 임계값 설정 #####"
-cp -an /etc/authselect/system-auth $BACK_DIR/$CUR_DATE
-cp -an /etc/authselect/password-auth $BACK_DIR/$CUR_DATE
 
 
 if [ "$RHEL_VERSION" == 8 ];
   then
+  cp -an /etc/authselect/system-auth $BACK_DIR/$CUR_DATE
+  cp -an /etc/authselect/password-auth $BACK_DIR/$CUR_DATE
   authselect apply-changes -b --backup=sssd.backup
   authselect create-profile password-policy -b sssd
   authselect select custom/password-policy
@@ -142,18 +142,14 @@ if [ "$RHEL_VERSION" == 8 ];
 			authselect apply-changes
 	fi	
   else
+cp -an /etc/pam.d/system-auth $BACK_DIR/$CUR_DATE
+cp -an /etc/pam.d/password-auth $BACK_DIR/$CUR_DATE
 sed -i '5i\auth        required      pam_tally2.so deny=10 unlock_time=3600' /etc/pam.d/system-auth
 sed -i '11i\account     required      pam_tally2.so' /etc/pam.d/system-auth
 sed -i '5i\auth        required      pam_tally2.so deny=10 unlock_time=3600' /etc/pam.d/password-auth
 sed -i '10i\account     required      pam_tally2.so' /etc/pam.d/password-auth
-fi
 
-#deny=10  : 패스워드 잠금 횟수 10회
-#unlock_time=3600 (1시간) : 계정이 잠김 후 해제 될 때까지의 시간(단위 : 초) 
-#onerr=fail : /etc/loginusers 파일 자체가 없다든지 할 때 거부할 것인가 아닌가를 결정 success|fail
-#로그인 성공시 잠금횟수 초기화
-#no_magic_root reset  root계정에 한해선 예외처리 (이 옵션 없어졌으니까 사용하지 마세요)
-
+## check
 chk1=$(cat /etc/pam.d/system-auth | grep "pam_tally2"  | wc -l)
 chk2=$(cat /etc/pam.d/password-auth | grep "pam_tally2" | wc -l)
 
@@ -165,6 +161,14 @@ chk2=$(cat /etc/pam.d/password-auth | grep "pam_tally2" | wc -l)
         color "RED"
         echo "Not successed"
         fi
+fi
+
+#deny=10  : 패스워드 잠금 횟수 10회
+#unlock_time=3600 (1시간) : 계정이 잠김 후 해제 될 때까지의 시간(단위 : 초) 
+#onerr=fail : /etc/loginusers 파일 자체가 없다든지 할 때 거부할 것인가 아닌가를 결정 success|fail
+#로그인 성공시 잠금횟수 초기화
+#no_magic_root reset  root계정에 한해선 예외처리 (이 옵션 없어졌으니까 사용하지 마세요)
+
 
 color "NORMAL"
 echo ""
@@ -188,22 +192,21 @@ function u05()
 function u06()
 {
       echo " ##### u06 root 계정 su 제한 #####"
-	cp -ap /etc/pam.d/su $BACK_DIR/$CUR_DATE
+	cp -an /etc/pam.d/su $BACK_DIR/$CUR_DATE
 
 # wheel 그룹에 사용할 유저명/패스워드 지정
 #user_name=suser
 #passwd=suser
 
 	# wheel그룹에 포함된 사용자 su사용 가능하게 설정
-perl -pi -e 's/^#*auth(.*)pam_wheel.so use_uid(.*)/$&\nauth           required        pam_wheel.so use_uid/ig' /etc/pam.d/su
-
+sed -i '/#auth\t\trequired\tpam_wheel.so/  s/.// ' /etc/pam.d/su
 
 	# wheel그룹에 포함되는 user생성
 #	useradd $user_name
 #	echo "$passwd" | passwd $user_name --stdin
 
 
-usermod -aG wheel skccadm
+usermod -aG wheel hjun
 
 chk=$(cat /etc/pam.d/su | grep "pam_wheel.so use_uid" | grep -v ^# | wc -l)
         if [ "$chk" -eq 1 ]
@@ -1318,6 +1321,6 @@ function main()
    u76 # 필요없는 서비스 disable
 }
 
-u03
+u06
 color "NORMAL"
 
