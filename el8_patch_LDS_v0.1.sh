@@ -135,12 +135,12 @@ if [ "$RHEL_VERSION" == 8 ];
   authselect apply-changes
 	if [ "$RHEL_MINOR_VERSION" -le 2 ]
 		then
-			sed -i -e 's/deny=4/deny=10/g' -e 's/unlock_time=1200/unlock_time=3600/g' /etc/authselect/custom/password-policy/system-auth
-			sed -i -e 's/deny=4/deny=10/g' -e 's/unlock_time=1200/unlock_time=3600/g' /etc/authselect/custom/password-policy/password-auth
+			sed -i -e 's/deny=4/deny=10/g' -e 's/unlock_time=1200/unlock_time=3600/g' -e '/pam_pwquality.so try_first_pass local_users_only/a\password    requisite                                    pam_pwhistory.so remember=2 use_authok' /etc/authselect/custom/password-policy/system-auth
+			sed -i -e 's/deny=4/deny=10/g' -e 's/unlock_time=1200/unlock_time=3600/g' -e '/pam_pwquality.so try_first_pass local_users_only/a\password    requisite                                    pam_pwhistory.so remember=2 use_authok' /etc/authselect/custom/password-policy/password-auth
 			authselect apply-changes
 		else
-			sed -i -e 's/pam_faillock.so preauth silent/pam_faillock.so preauth silent deny=10 unlock_time=3600/g' -e 's/pam_faillock.so authfail/pam_faillock.so authfail deny=10 unlock_time=3600/g' /etc/authselect/custom/password-policy/system-auth
-			sed -i -e 's/pam_faillock.so preauth silent/pam_faillock.so preauth silent deny=10 unlock_time=3600/g' -e 's/pam_faillock.so authfail/pam_faillock.so authfail deny=10 unlock_time=3600/g' /etc/authselect/custom/password-policy/password-auth
+			sed -i -e 's/pam_faillock.so preauth silent/pam_faillock.so preauth silent deny=10 unlock_time=3600/g' -e 's/pam_faillock.so authfail/pam_faillock.so authfail deny=10 unlock_time=3600/g' -e '/pam_pwquality.so try_first_pass local_users_only/a\password    requisite                                    pam_pwhistory.so remember=2 use_authok' /etc/authselect/custom/password-policy/system-auth
+			sed -i -e 's/pam_faillock.so preauth silent/pam_faillock.so preauth silent deny=10 unlock_time=3600/g' -e 's/pam_faillock.so authfail/pam_faillock.so authfail deny=10 unlock_time=3600/g' -e '/pam_pwquality.so try_first_pass local_users_only/a\password    requisite                                    pam_pwhistory.so remember=2 use_authok' /etc/authselect/custom/password-policy/password-auth
 			authselect apply-changes
 	fi	
   else
@@ -1323,6 +1323,6 @@ function main()
    u76 # 필요없는 서비스 disable
 }
 
-u07
+u03
 color "NORMAL"
 
