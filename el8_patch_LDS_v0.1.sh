@@ -13,6 +13,8 @@
 ##						 	##
 ##########################################################
 
+## have to check u06 wheel group user
+
 function color()
 {
         case $1 in
@@ -230,13 +232,13 @@ function u07()
 ## chage 명령을 이용하여 설정을 변경하여야 한다. 예) chage  hjun -m 1 -M 90 ##
       echo "##### u07,08,09 패스워드 최소 길이,최대 길이, 최소 사용기간 설정 #####"
 
-	cp -ap /etc/login.defs $BACK_DIR/$CUR_DATE
+	cp -an /etc/login.defs $BACK_DIR/$CUR_DATE
 
         cat /etc/login.defs |grep -v "^PASS_WARN_AGE" | grep -v "^PASS_MIN_LEN" | grep -v "^PASS_MAX_DAYS" | grep -v "^PASS_MIN_DAYS" > $BACK_DIR/login.tmp
         echo "" >> login.tmp
         echo "# Add passwd rule" >> $BACK_DIR/login.tmp
-        echo "PASS_MIN_LEN    9" >> $BACK_DIR/login.tmp
-        echo "PASS_MAX_DAYS  70" >> $BACK_DIR/login.tmp
+        echo "PASS_MIN_LEN    8" >> $BACK_DIR/login.tmp
+        echo "PASS_MAX_DAYS  180" >> $BACK_DIR/login.tmp
         echo "PASS_MIN_DAYS   7" >> $BACK_DIR/login.tmp
 	echo "PASS_WARN_AGE   7" >> $BACK_DIR/login.tmp
   cat $BACK_DIR/login.tmp > /etc/login.defs
@@ -1321,6 +1323,6 @@ function main()
    u76 # 필요없는 서비스 disable
 }
 
-u06
+u07
 color "NORMAL"
 
