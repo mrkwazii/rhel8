@@ -235,7 +235,7 @@ function u07()
 	cp -an /etc/login.defs $BACK_DIR/$CUR_DATE
 
         cat /etc/login.defs |grep -v "^PASS_WARN_AGE" | grep -v "^PASS_MIN_LEN" | grep -v "^PASS_MAX_DAYS" | grep -v "^PASS_MIN_DAYS" > $BACK_DIR/login.tmp
-        echo "" >> login.tmp
+        echo "" >> $BACK_DIR/login.tmp
         echo "# Add passwd rule" >> $BACK_DIR/login.tmp
         echo "PASS_MIN_LEN    8" >> $BACK_DIR/login.tmp
         echo "PASS_MAX_DAYS  180" >> $BACK_DIR/login.tmp
