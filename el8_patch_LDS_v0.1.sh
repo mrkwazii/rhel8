@@ -289,6 +289,9 @@ cp -an /etc/gshadow $BACK_DIR/$CUR_DATE
 	do
 		userdel $i
 	done
+	
+	sed -i -e '/lp/ s/^#*/#/'  /usr/lib/tmpfiles.d/cups.conf
+	sed -i -e '/lp/ s/^#*/#/'  /usr/lib/tmpfiles.d/cups-lp.conf
 
 chk=$(cat /etc/passwd | grep "^lp:" | cut -d: -f1 | wc -l)
 if [ "$chk" -eq 0 ];
@@ -1323,6 +1326,6 @@ function main()
    u76 # 필요없는 서비스 disable
 }
 
-u03
+u10
 color "NORMAL"
 
